@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import PickupLines from "./PickupLine"
 
-export default function PickupLinesList() {
+export default function PickupLinesList({ user }) {
     const [records, setRecords] = useState([]);
 
     const fetchRecords = async () => {
@@ -32,7 +32,7 @@ export default function PickupLinesList() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id }),
+                body: JSON.stringify({ id, user }),
             });
 
             const data = await response.json();
@@ -56,7 +56,7 @@ export default function PickupLinesList() {
         <section className="px-4 mb-24">
             <ul className="divide-y">
                 {
-                    records && records.map((e) => <PickupLines key={e._id} id={e._id} text={e.text} upvoteCount={e.upvote} upvoteClick={updateRecord} />)
+                    records && records.map((e, index) => <PickupLines key={index} id={e._id} text={e.text} upvoteCount={e.upvote} upvoteClick={updateRecord} isUpvote={e.isUpvote} />)
                 }
             </ul>
         </section>

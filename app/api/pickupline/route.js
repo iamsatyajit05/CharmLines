@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase }  from "@/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
 import { mongoose } from "mongoose";
 
 export async function GET(req) {
@@ -19,21 +19,37 @@ export async function GET(req) {
 export async function PUT(req) {
     try {
         const db = await connectToDatabase();
-        const collection = db.collection('pickuplines');
-        console.log(req);
+        const pickuplineCollection = db.collection('pickuplines');
+        const upvoteCollection = db.collection('upvotes');
+
         const body = await req.json();
-        console.log(body);
 
-        console.log(body.id);
-        
-        const filter = { _id: new mongoose.Types.ObjectId(body.id) };
-        const update = {
-            $inc: { upvote: 1 }
-        };
+        const existingUpvote = await upvoteCollection.findOne({ post: body.id, user: body.user });
 
-        const result = await collection.findOneAndUpdate(filter, update);
+        if (existingUpvote) {
+            existingUpvote.isUpvote = !existingUpvote.isUpvote;
+            await upvoteCollection.updateOne(
+                { _id: existingUpvote._id },
+                { $set: { isUpvote: existingUpvote.isUpvote } }
+            );
 
-        console.log(result);
+            const filter = { _id: new mongoose.Types.ObjectId(body.id) };
+            const update = {
+                $inc: { upvote: existingUpvote.isUpvote ? 1 : -1 }
+            };
+
+            const result = await pickuplineCollection.findOneAndUpdate(filter, update);
+        } else {
+            await upvoteCollection.insertOne({ post: body.id, user: body.user, isUpvote: true });
+
+            const filter = { _id: new mongoose.Types.ObjectId(body.id) };
+            const update = {
+                $inc: { upvote: 1 }
+            };
+
+            const result = await pickuplineCollection.findOneAndUpdate(filter, update);
+        }
+
 
         if (!result) {
             return NextResponse.json({ error: 'Record not found' });
