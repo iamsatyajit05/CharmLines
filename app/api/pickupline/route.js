@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { mongoose } from "mongoose";
 
-export async function GET(req) {
+export async function POST(req) {
     try {
         const db = await connectToDatabase();
-        const collection = db.collection('pickuplines');
+        const pickupline = db.collection('pickuplines');
 
-        const records = await collection.find().toArray();
+        const body = await req.json();
+
+        const initRecords = await pickupline.find().toArray();
+    
+        const records = initRecords.map(record => {
+            const isUpvote = record.upvoters && record.upvoters.includes(body.user);
+            console.log(record.upvoters.includes(body.user), body.user, record.upvoters);
+            return { ...record, isUpvote };
+        });
 
         return NextResponse.json({ records });
     } catch (error) {
@@ -19,40 +27,34 @@ export async function GET(req) {
 export async function PUT(req) {
     try {
         const db = await connectToDatabase();
-        const pickuplineCollection = db.collection('pickuplines');
-        const upvoteCollection = db.collection('upvotes');
+        const pickupline = db.collection('pickuplines');
 
         const body = await req.json();
 
-        const existingUpvote = await upvoteCollection.findOne({ post: body.id, user: body.user });
+        const existingPickupline = await pickupline.findOne({ _id: new mongoose.Types.ObjectId(body.id) });
 
-        if (existingUpvote) {
-            existingUpvote.isUpvote = !existingUpvote.isUpvote;
-            await upvoteCollection.updateOne(
-                { _id: existingUpvote._id },
-                { $set: { isUpvote: existingUpvote.isUpvote } }
-            );
-
-            const filter = { _id: new mongoose.Types.ObjectId(body.id) };
-            const update = {
-                $inc: { upvote: existingUpvote.isUpvote ? 1 : -1 }
-            };
-
-            const result = await pickuplineCollection.findOneAndUpdate(filter, update);
-        } else {
-            await upvoteCollection.insertOne({ post: body.id, user: body.user, isUpvote: true });
-
-            const filter = { _id: new mongoose.Types.ObjectId(body.id) };
-            const update = {
-                $inc: { upvote: 1 }
-            };
-
-            const result = await pickuplineCollection.findOneAndUpdate(filter, update);
+        if (!existingPickupline) {
+            return NextResponse.json({ error: 'Record not found' });
         }
 
+        const upvoters = existingPickupline.upvoters || [];
 
-        if (!result) {
-            return NextResponse.json({ error: 'Record not found' });
+        const userEmailIndex = upvoters.indexOf(body.user);
+
+        if (userEmailIndex !== -1) {
+            // User already upvoted, remove the upvote
+            upvoters.splice(userEmailIndex, 1);
+            await pickupline.updateOne(
+                { _id: existingPickupline._id },
+                { $set: { upvoters, upvote: existingPickupline.upvote - 1 } }
+            );
+        } else {
+            // User hasn't upvoted, add the upvote
+            upvoters.push(body.user);
+            await pickupline.updateOne(
+                { _id: existingPickupline._id },
+                { $set: { upvoters, upvote: existingPickupline.upvote + 1 } }
+            );
         }
 
         return NextResponse.json({ message: 'Upvote count increased successfully' });

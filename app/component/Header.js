@@ -14,7 +14,7 @@ export default function Header({ isSignin, userDetail }) {
         <section className="mb-12 space-y-4">
             {/* <img alt="Naval profile" decoding="async" data-nimg="1" className="w-20 h-20 md:w-24 md:h-24 rounded-full text-transparent" srcset="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fnaval.6a0c2055.jpeg&amp;w=384&amp;q=75 1x, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fnaval.6a0c2055.jpeg&amp;w=750&amp;q=75 2x" src="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fnaval.6a0c2055.jpeg&amp;w=750&amp;q=75" /> */}
             <div className="border-b-[1px]">
-                <div className="max-w-3xl mx-auto flex items-center px-2 md:px-0">
+                <div className="max-w-3xl mx-auto flex items-center px-4 md:px-0">
                     <h2 className="flex-1 font-semibold my-4">CharmLines</h2>
                     {!isSignin && <a href="/api/auth/signin" className="inline-flex items-center justify-center my-4 px-3 py-1 font-medium bg-[#ebebeb] rounded-md hover:bg-gray-300 active:scale-95">Sign In</a>}
                     {isSignin &&
@@ -27,7 +27,7 @@ export default function Header({ isSignin, userDetail }) {
                         </div>}
                 </div>
             </div>
-            <div className="max-w-3xl mx-auto pt-4">
+            <div className="max-w-3xl mx-auto pt-4 px-4 md:px-2">
                 <h1 className="text-4xl md:text-5xl font-black">Start a Charming Conversation with Every Line!</h1>
             </div>
         </section>

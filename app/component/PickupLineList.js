@@ -8,14 +8,16 @@ export default function PickupLinesList({ user }) {
     const fetchRecords = async () => {
         try {
             const response = await fetch('/api/pickupline', {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ user }),
             });
             const data = await response.json();
 
             if (response.ok) {
+                console.log(data.records);
                 setRecords(data.records);
             } else {
                 console.error(data.error);

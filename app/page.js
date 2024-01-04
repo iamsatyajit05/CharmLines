@@ -6,6 +6,7 @@ import PickupLinesList from "./component/PickupLineList"
 export default function Home() {
   const [isSignin, setIsSignin] = useState(false);
   const [userDetail, setUserDetail] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   const getUserInfo = async () => {
     try {
@@ -17,9 +18,10 @@ export default function Home() {
       });
 
       const data = await response.json();
-      
+
       if (data.error) {
         setIsSignin(false);
+        setIsLoading(false);
         return;
       }
 
@@ -29,11 +31,14 @@ export default function Home() {
           'name': data.userName
         })
         setIsSignin(true);
+        setIsLoading(false);
       } else {
         console.error(data.error);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error updating record:', error);
+      setIsLoading(false);
     }
   };
 
@@ -44,9 +49,14 @@ export default function Home() {
   return (
     <>
       <Header isSignin={isSignin} userDetail={userDetail} />
-      <main className="max-w-3xl mx-auto pt-4">
-        <PickupLinesList user={userDetail.email} />
-      </main>
+        <main className="max-w-3xl mx-auto pt-4">
+          {!isLoading && (
+            <PickupLinesList user={userDetail.email} />
+          )}
+          {isLoading && (
+            <p className="text-center">Wait a bit too find best pickupline to start conversation 🙃</p>
+          )}
+        </main>
     </>
   )
 }
