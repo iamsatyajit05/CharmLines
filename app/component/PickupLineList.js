@@ -17,7 +17,6 @@ export default function PickupLinesList({ user }) {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(data.records);
                 setRecords(data.records);
             } else {
                 console.error(data.error);

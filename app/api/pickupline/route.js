@@ -13,7 +13,6 @@ export async function POST(req) {
     
         const records = initRecords.map(record => {
             const isUpvote = record.upvoters && record.upvoters.includes(body.user);
-            console.log(record.upvoters.includes(body.user), body.user, record.upvoters);
             return { ...record, isUpvote };
         });
 
