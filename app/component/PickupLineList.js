@@ -28,6 +28,10 @@ export default function PickupLinesList({ user }) {
 
     const updateRecord = async (id) => {
         try {
+            if(!user) {
+                alert('Please Login to Upvote');
+                return;
+            }
             const response = await fetch(`/api/pickupline`, {
                 method: 'PUT',
                 headers: {
