@@ -11,10 +11,12 @@ export async function POST(req) {
 
         const initRecords = await pickupline.find().toArray();
     
-        const records = initRecords.map(record => {
+        const unsortRecords = initRecords.map(record => {
             const isUpvote = record.upvoters && record.upvoters.includes(body.user);
             return { ...record, isUpvote };
         });
+
+        const records = unsortRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         return NextResponse.json({ records });
     } catch (error) {

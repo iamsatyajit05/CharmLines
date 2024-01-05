@@ -27,7 +27,7 @@ export default function Header({ isSignin, userDetail }) {
                         </div>}
                 </div>
             </div>
-            <div className="max-w-3xl mx-auto pt-4 px-4 md:px-2">
+            <div className="max-w-3xl mx-auto pt-4 px-4 md:px-0">
                 <h1 className="text-4xl md:text-5xl font-black">Start a Charming Conversation with Every Line!</h1>
             </div>
         </section>
