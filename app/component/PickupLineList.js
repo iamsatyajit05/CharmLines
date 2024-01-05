@@ -4,6 +4,7 @@ import PickupLines from "./PickupLine"
 
 export default function PickupLinesList({ user }) {
     const [records, setRecords] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const fetchRecords = async () => {
         try {
@@ -21,6 +22,11 @@ export default function PickupLinesList({ user }) {
             } else {
                 console.error(data.error);
             }
+
+
+            if (isLoading) {
+                setIsLoading(false);
+            }
         } catch (error) {
             console.error('Error fetching records:', error);
         }
@@ -28,7 +34,7 @@ export default function PickupLinesList({ user }) {
 
     const updateRecord = async (id) => {
         try {
-            if(!user) {
+            if (!user) {
                 alert('Please Login to Upvote');
                 return;
             }
@@ -59,11 +65,12 @@ export default function PickupLinesList({ user }) {
 
     return (
         <section className="px-4 mb-24">
-            <ul className="divide-y">
+            {!isLoading && <ul className="divide-y">
                 {
                     records && records.map((e, index) => <PickupLines key={index} id={e._id} text={e.text} upvoteCount={e.upvote} upvoteClick={updateRecord} isUpvote={e.isUpvote} />)
                 }
-            </ul>
+            </ul>}
+            {isLoading && <p className="text-center">Wait a bit too find best pickupline to start conversation 🙃</p>}
         </section>
     )
 }
